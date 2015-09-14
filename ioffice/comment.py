@@ -182,7 +182,7 @@ class CommentNP(NodeParser):
             return comment
         return None
 
-    def close(self, node):
+    def close(self, _):
         pass
 
 

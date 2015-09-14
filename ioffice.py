@@ -38,12 +38,23 @@ INFO = init(
 )
 MOD = load_aux(INFO)
 REPOSITORY = [
-    MOD['comment'].CommentNP
+    MOD['comment'].CommentNP,
+    MOD['class'].ClassNP,
+    MOD['compound'].CompoundNP,
 ]
 MAPPING = {
     '__default__': (
-        '/', [
+        '/{}', [
             'CommentNP',
+            'ClassNP',
+            'CompoundNP',
+        ]
+    ),
+    '#document': (
+        '\n/{}', [
+            'CommentNP',
+            'ClassNP',
+            'CompoundNP',
         ]
     ),
 }
