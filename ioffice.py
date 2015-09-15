@@ -41,6 +41,8 @@ REPOSITORY = [
     MOD['comment'].CommentNP,
     MOD['class'].ClassNP,
     MOD['compound'].CompoundNP,
+    MOD['method'].MethodNP,
+    MOD['empty'].EmptyNP,
 ]
 MAPPING = {
     '__default__': (
@@ -55,6 +57,13 @@ MAPPING = {
             'CommentNP',
             'ClassNP',
             'CompoundNP',
+        ]
+    ),
+    'class-node': (
+        '/}', [
+            'EmptyNP',
+            'MethodNP',
+            'CommentNP',
         ]
     ),
 }
