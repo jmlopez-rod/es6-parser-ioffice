@@ -5,7 +5,7 @@ Node parser description.
 """
 
 from lexor.core.parser import NodeParser
-from lexor.core.elements import Element, Void
+from lexor.core.elements import Element, Void, Text
 from lexor.util.logging import L
 
 
@@ -54,31 +54,51 @@ class MethodNP(NodeParser):
     def make_node(self):
         """State the type of node it returns. """
         parser = self.parser
+        parser['EmptyNP'].read_empty()
 
-        spaces, index = parser.read_spaces()
-        # TODO: do some checking on spacing here for indentation
-        parser.update(index)
-
-        if parser.text[index] == '/':
+        if parser.text[parser.caret] == '/':
             return None
+
+        if parser.text[parser.caret] == '}':
+            return Text('')
 
         node = Element('class-method')
         node.pos = parser.copy_pos()
 
-        token, index = parser.read_token(' \t\n\r\f\v(){}')
+        token = parser['TokenNP'].read_token()
+
+        if token == ';':
+            self.msg('W100', node.pos)
+            return Text('')
+
+        if token == 'static':
+            node['static'] = True
+            parser['EmptyNP'].read_empty()
+            token = parser['TokenNP'].read_token()
+
+        if token in ['*', 'get', 'set']:
+            node['pre'] = token
+            parser['EmptyNP'].read_empty()
+            token = parser['TokenNP'].read_token()
+
         if token == 'constructor':
-            parser.update(index)
-            args = self._parse_arguments()
-            if args is None:
-                return self.error('E200', parser.pos)
-            print args
-            spaces, index = parser.read_spaces()
-            # TODO: Check for only one space
-            parser.update(index)
-            if parser.text[index] != '{':
-                return self.error('E300', parser.pos)
-            parser.update(index + 1)
-            return node
+            # TODO: Make sure there is only one constructor
+            node.name = 'class-constructor'
+        else:
+            # TODO: no repeats
+            node['name'] = token
+
+        args = self._parse_arguments()
+        if args is None:
+            print 'TOKEN FAIL = ', token
+            return self.error('E200', parser.pos)
+        print args
+        parser['EmptyNP'].read_empty(' ')
+        if parser.text[parser.caret] != '{':
+            return self.error('E300', parser.pos)
+        parser.update(parser.caret + 1)
+        return node
+
 
     def close(self, node):
         parser = self.parser
@@ -90,20 +110,13 @@ class MethodNP(NodeParser):
 
 
 MSG = {
+    'W100': 'no need for semicolon on method declaration',
     'E200': 'expected `(` to begin reading method arguments',
     'E300': 'expected `{` to begin method body',
 }
 MSG_EXPLANATION = [
     """
     - `(` is expected immediately after the method name.
-
-    Okay: class {}
-
-    W100: class{}
-    W100: class  {}
-    W101:
-        class
-        {}
 
 """,
 ]

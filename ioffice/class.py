@@ -1,16 +1,11 @@
 """ES6: CLASS NodeParser
 
-Node parser description.
-
 """
 
 from lexor.core.parser import NodeParser
 from lexor.core.elements import Element, Void
 
 
-# TODO: the parsers get token function does not make distinction
-# TODO: between non-space characters and operators. Once this is
-# TODO: updated we may change some code in here on `read_token`.
 class ClassNP(NodeParser):
     """Try parsing:
 
@@ -29,68 +24,60 @@ class ClassNP(NodeParser):
         self.parser.update(self.parser.end)
         return Void('failed-class-node')
 
-    def _inspect_spaces(self, spaces, same_line=False):
-        if len(spaces) != 1:
-            self.msg('W100', self.parser.pos, [len(spaces)])
-        if same_line and spaces == '\n':
-            self.msg('W101', self.parser.pos)
-
-    def _get_next_token(self, spaces, index):
-        self._inspect_spaces(spaces)
-        self.parser.update(index)
-        return self.parser.read_token(' \t\n\r\f\v{}')
-
-    def _get_next_spaces(self, index):
-        self.parser.update(index)
-        return self.parser.read_spaces()
-
     def _update_class_name(self, node, token):
         node['name'] = token
 
     def _update_inherits(self, node, token):
         node['inherits'] = token
 
-    def _token_is_extends(self, parser, index, node):
-        spaces, index = self._get_next_spaces(index)
-        if parser.text[index] == '{':
-            return self.error('E101', parser.pos)
-        token, index = self._get_next_token(spaces, index)
-        self._update_inherits(node, token)
-        spaces, index = self._get_next_spaces(index)
-        if parser.text[index] == '{':
-            self._inspect_spaces(spaces, True)
-            parser.update(index + 1)
+    def _token_is_extends(self, node):
+        parser = self.parser
+        parser['EmptyNP'].read_empty(' ')
+        pos = parser.copy_pos()
+        base_class = parser['TokenNP'].read_token()
+
+        if base_class == '{':
+            return self.error('E101', pos)
+
+        self._update_inherits(node, base_class)
+        parser['EmptyNP'].read_empty(' ')
+        token = parser['TokenNP'].read_token()
+
+        if token == '{':
             return node
-        parser.update(parser.caret + 1)
+
         return self.error('E102', parser.pos)
 
     def make_node(self):
         """State the type of node it returns. """
         parser = self.parser
-        token, index = parser.read_token(' \t\n\r\f\v{}')
+        token, index = parser['TokenNP'].inspect_token()
         if token != 'class':
             return None
-        caret = parser.caret
+
         node = Element('class-node')
         node.pos = parser.copy_pos()
-        parser.update(caret+5)
-        spaces, index = parser.read_spaces()
-        if parser.text[index] == '{':
-            self._inspect_spaces(spaces, True)
-            parser.update(index + 1)
+        parser.update(index)
+
+        parser['EmptyNP'].read_empty(' ')
+        token = parser['TokenNP'].read_token()
+
+        if token == '{':
             return node
-        token, index = self._get_next_token(spaces, index)
+
         if token == 'extends':
-            return self._token_is_extends(parser, index, node)
+            return self._token_is_extends(node)
+
         self._update_class_name(node, token)
-        spaces, index = self._get_next_spaces(index)
-        if parser.text[index] == '{':
-            self._inspect_spaces(spaces, True)
-            parser.update(index + 1)
+        parser['EmptyNP'].read_empty(' ')
+        token = parser['TokenNP'].read_token()
+
+        if token == '{':
             return node
-        token, index = self._get_next_token(spaces, index)
+
         if token == 'extends':
-            return self._token_is_extends(parser, index, node)
+            return self._token_is_extends(node)
+
         return self.error('E100', parser.pos, [token])
 
     def close(self, _):
@@ -103,28 +90,11 @@ class ClassNP(NodeParser):
 
 
 MSG = {
-    'W100': 'expected 1 space, found {0}',
-    'W101': 'start curly bracket in same line as class declaration',
     'E100': 'expected `extends`, found `{0}`',
     'E101': 'missing base class to inherit from',
     'E102': 'expected starting curly bracket for class body',
 }
 MSG_EXPLANATION = [
-    """
-    - Use only one space when required.
-
-    - Curly brackets should start in the same line as the class
-      declaration.
-
-    Okay: class {}
-
-    W100: class{}
-    W100: class  {}
-    W101:
-        class
-        {}
-
-""",
     """
     - To inherit from a class we use the "extends" keyword followed
       by the name of the class we wish to inherit from.
@@ -155,5 +125,5 @@ MSG_EXPLANATION = [
 
     E102: class Square extends Polygon Rectangle {}
 
-"""
+""",
 ]
