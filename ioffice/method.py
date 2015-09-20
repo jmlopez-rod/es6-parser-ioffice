@@ -99,7 +99,6 @@ class MethodNP(NodeParser):
         parser.update(parser.caret + 1)
         return node
 
-
     def close(self, node):
         parser = self.parser
         caret = parser.caret
@@ -112,7 +111,7 @@ class MethodNP(NodeParser):
 MSG = {
     'W100': 'no need for semicolon on method declaration',
     'E200': 'expected `(` to begin reading method arguments',
-    'E300': 'expected `{` to begin method body',
+    'E300': 'expected `{{` to begin method body',
 }
 MSG_EXPLANATION = [
     """

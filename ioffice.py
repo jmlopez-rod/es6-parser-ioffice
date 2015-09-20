@@ -44,6 +44,7 @@ REPOSITORY = [
     MOD['method'].MethodNP,
     MOD['token'].EmptyNP,
     MOD['token'].TokenNP,
+    MOD['function'].FunctionNP,
 ]
 MAPPING = {
     '__default__': (
@@ -51,6 +52,7 @@ MAPPING = {
             'EmptyNP',
             'CommentNP',
             'ClassNP',
+            'FunctionNP',
             'CompoundNP',
         ]
     ),
@@ -59,6 +61,7 @@ MAPPING = {
             'EmptyNP',
             'CommentNP',
             'ClassNP',
+            'FunctionNP',
             'CompoundNP',
         ]
     ),
