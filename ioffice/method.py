@@ -20,37 +20,6 @@ class MethodNP(NodeParser):
         self.parser.update(self.parser.end)
         return Void('failed-method-node')
 
-    def _parse_arguments(self):
-        parser = self.parser
-        if parser.text[parser.caret] != '(':
-            return None
-        index = parser.caret + 1
-        char = parser.text[index]
-        result = []
-        buff = ""
-        level = 0
-        is_quoted = False
-        while True:
-            if char == ',' and level == 0 and not is_quoted:
-                result.append(buff.strip())
-                buff = ''
-            else:
-                if char == '(':
-                    level += 1
-                elif char == ')':
-                    level -= 1
-                    if level == -1:
-                        break
-                elif char in '"\'':
-                    is_quoted = not is_quoted
-                buff += char
-            index += 1
-            char = parser.text[index]
-        if buff != '':
-            result.append(buff.strip())
-        parser.update(index + 1)
-        return result
-
     def make_node(self):
         """State the type of node it returns. """
         parser = self.parser
@@ -88,11 +57,15 @@ class MethodNP(NodeParser):
             # TODO: no repeats
             node['name'] = token
 
-        args = self._parse_arguments()
-        if args is None:
-            print 'TOKEN FAIL = ', token
-            return self.error('E200', parser.pos)
-        print args
+        start_param_pos = parser.copy_pos()
+        token = parser['TokenNP'].read_token()
+        if token != '(':
+            return self.error('E200', start_param_pos)
+
+        params, defaults = parser['FunctionNP']._read_parameters()
+        node['params'] = params
+        node['defaults'] = defaults
+
         parser['EmptyNP'].read_empty(' ')
         if parser.text[parser.caret] != '{':
             return self.error('E300', parser.pos)

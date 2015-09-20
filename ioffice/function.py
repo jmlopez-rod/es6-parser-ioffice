@@ -67,16 +67,16 @@ class FunctionNP(NodeParser):
 
         if token == '(':
             params, defaults = self._read_parameters()
-            node['params'] = ','.join(params)
-            node['defaults'] = ','.join(defaults)
+            node['params'] = params
+            node['defaults'] = defaults
         else:
             node['name'] = token
             token = parser['TokenNP'].read_token()
             if token != '(':
                 return self.error('E200', parser.pos)
             params, defaults = self._read_parameters()
-            node['params'] = ','.join(params)
-            node['defaults'] = ','.join(defaults)
+            node['params'] = params
+            node['defaults'] = defaults
 
         parser['EmptyNP'].read_empty(' ')
         if parser.text[parser.caret] != '{':
