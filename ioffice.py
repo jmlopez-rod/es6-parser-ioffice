@@ -45,6 +45,7 @@ REPOSITORY = [
     MOD['token'].EmptyNP,
     MOD['token'].TokenNP,
     MOD['function'].FunctionNP,
+    MOD['statement'].StatementNP,
 ]
 MAPPING = {
     '__default__': (
@@ -57,18 +58,28 @@ MAPPING = {
         ]
     ),
     '#document': (
-        '/{}', [
+        '/{};', [
             'EmptyNP',
             'CommentNP',
             'ClassNP',
             'FunctionNP',
             'CompoundNP',
+            'StatementNP',
         ]
     ),
     'class-node': (
         '/}', [
             'MethodNP',
             'CommentNP',
+        ]
+    ),
+    'statement-node': (
+        ';/{}=', [
+            'EmptyNP',
+            'CommentNP',
+            'ClassNP',
+            'FunctionNP',
+            'CompoundNP',
         ]
     ),
 }

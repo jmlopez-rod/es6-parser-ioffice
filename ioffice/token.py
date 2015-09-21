@@ -51,7 +51,7 @@ class EmptyNP(NodeParser):
     def make_node(self):
         data = self.read_empty()
         if data:
-            return Text(data)
+            return Text('')
         return None
 
     def close(self, _):
