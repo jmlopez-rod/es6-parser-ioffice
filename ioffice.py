@@ -19,7 +19,7 @@ DEFAULTS = {
     'doc-parser-style': '_',
 }
 INFO = init(
-    version=(0, 0, 0, 'alpha', 0),
+    version=(0, 0, 1, 'alpha', 0),
     lang='es6',
     type='parser',
     description='Parse es6 files. ',
