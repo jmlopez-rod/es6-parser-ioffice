@@ -55,6 +55,7 @@ MAPPING = {
             'ClassNP',
             'FunctionNP',
             'CompoundNP',
+            'StatementNP',
         ]
     ),
     '#document': (

@@ -34,7 +34,15 @@ class ClassNP(NodeParser):
         parser = self.parser
         parser['EmptyNP'].read_empty(' ')
         pos = parser.copy_pos()
+
         base_class = parser['TokenNP'].read_token()
+        token, index = parser['TokenNP'].inspect_token()
+        while token == '.':
+            base_class += token
+            parser.update(index)
+            base_class += parser['TokenNP'].read_token()
+            token, index = parser['TokenNP'].inspect_token()
+
 
         if base_class == '{':
             return self.error('E101', pos)
