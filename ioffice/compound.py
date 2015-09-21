@@ -21,7 +21,7 @@ class CompoundNP(NodeParser):
         node = Element('compound')
         # TODO: set the context of the compound statement:
         # function, object, for, while
-        L.log("PREVIOUS SIBLING: %r", parser.current_node[-1])
+        # L.log("PREVIOUS SIBLING: %r", parser.current_node[-1])
         node['context'] = 'TBD'
         node.pos = parser.copy_pos()
         parser.update(caret+1)

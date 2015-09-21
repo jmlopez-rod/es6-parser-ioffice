@@ -42,8 +42,8 @@ class EmptyNP(NodeParser):
                     if space == '':
                         continue
                     if space != ' '*indent_level*2:
-                        self.msg('W200', parser.pos, [indent_level])
-
+                        pass
+                        # self.msg('W200', parser.pos, [indent_level])
             parser.update(match.end())
             return data
         return None
